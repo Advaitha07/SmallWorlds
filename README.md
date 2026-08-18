@@ -1,258 +1,160 @@
-# Small Worlds 🌍🧬
-### Exploring how a few connections can make a network surprisingly small
+# Small Worlds 🌿🕸️
 
-An interactive simulation inspired by **Six Degrees of Separation** and the **Watts–Strogatz small-world model**.
+### Can one new connection make a distant route shorter?
 
-Instead of simply asking whether two people can be connected through a short chain, this project explores **why large networks can remain surprisingly well connected when only a small number of long-range connections are introduced**.
+**Small Worlds** is an interactive network experiment inspired by **Six Degrees of Separation** and the **Watts–Strogatz small-world phenomenon**.
 
-The simulation uses a biological-looking network to make this phenomenon intuitive and visual.
+Instead of starting with people, the project uses a small **illustrative food-web network** so the idea can be seen rather than explained only with mathematics.
 
----
+> **The goal is not to claim that real ecosystems universally have six degrees or small-world structure. The goal is to make the network mechanism intuitive.**
 
-## The Question
+## 🌱 The idea
 
-> **How can a network that is mostly locally connected become surprisingly small when only a few long-range connections are introduced?**
+Imagine following feeding relationships through a food web:
 
-Six Degrees of Separation is the starting point for this project.
+```text
+Grass → Caterpillar → Bird → Fox
+```
 
-The goal is not to prove that everything in nature has "six degrees." Instead, the project investigates the underlying **small-world phenomenon** and how it emerges from network structure.
+The path from Grass to Fox is **3 feeding links**.
 
----
+Now imagine introducing one new, hypothetical feeding interaction between two distant parts of the network. If that new link creates a shorter route, we can see the effect directly.
 
-## Background
+```text
+Before:
+Grass → Caterpillar → Bird → Fox
+        3 links
 
-- **Six Degrees of Separation** popularized the idea that seemingly distant people can be connected through surprisingly short chains.
-- **Watts & Strogatz (1998)** showed that a network can develop short paths while retaining strong local clustering when a small amount of long-range rewiring is introduced.
-- This demonstrated that the small-world phenomenon can emerge from **network structure**, rather than being something unique to human social networks.
-- Similar network concepts can be used to study many complex systems, including biological networks.
+After one hypothetical link:
+Grass → Caterpillar → Fox
+        2 links
+```
 
-This project takes that idea as a starting point and turns it into an interactive experiment.
+The important question is:
 
----
+> **Can one new connection create a shortcut through a network?**
 
-## What It Does
+That simple experiment is the starting point for understanding the small-world phenomenon.
 
-### 1. Generates a simple network
+## 🔬 What the simulation does
 
-The simulation starts with a small, mostly locally connected network.
+1. **Choose two organisms.**
+2. **Trace their existing directed feeding path.**
+3. Measure the current shortest path using **Breadth-First Search (BFS)**.
+4. Search for a **hypothetical long-range feeding interaction** that is absent from the current web.
+5. Only accept the new interaction if it is both topologically distant and **actually makes the selected route shorter**.
+6. Compare the route before and after.
+7. If no valid shortcut exists, the simulation explicitly says so instead of inventing a connection.
 
-Nodes are given simple biological roles:
+This last case matters. **No useful connection is itself a result.**
 
-- 🌱 Producer
-- 🐛 Herbivore
-- 🦅 Carnivore
-- 🍄 Decomposer
+## 🐛 About the food web
 
-These roles provide an intuitive visual context.
+The organisms and interactions are deliberately small and illustrative. They are used to make graph structure understandable and are **not presented as a complete real-world ecosystem**.
 
-> **Important:** The current simulation is a structural network simulation, not a complete biological food-web model. The biological roles are used to make the network easier to understand visually.
+Each directed arrow represents:
 
-### 2. Lets the user explore connections
-
-The user can select two nodes and see the path between them.
+```text
+food / resource → consumer
+```
 
 For example:
 
 ```text
-A → B → C → D
+Grass → Caterpillar
 ```
 
-The simulation shows how many steps separate the two nodes.
+means that the Caterpillar consumes the Grass.
 
-### 3. Adds long-range connections
+The simulation therefore follows **directed feeding relationships**, rather than treating the network as an undirected collection of lines.
 
-The user can introduce connections between distant parts of the network.
+## 🧠 Why Six Degrees is only the starting point
 
-For example:
+Six Degrees of Separation gives us an intuitive question:
+
+> **How many connections separate two seemingly distant things?**
+
+Watts and Strogatz showed something deeper: a network can have mostly local connections while a relatively small number of long-range connections can dramatically reduce average path length without immediately destroying local clustering.
+
+Small Worlds uses an ecological-looking network as a visual starting point for exploring that mechanism.
+
+It is **not** trying to prove that food webs behave exactly like social networks.
+
+## 🎨 Designed to be understood first
+
+The interface intentionally uses a soft, vintage natural-history aesthetic so the project feels more like an interactive field notebook than a mathematics dashboard.
+
+The intended progression is:
 
 ```text
-A — B — C — D — E — F
-╰─────────────────────╯
+See the organisms
+      ↓
+Follow a feeding route
+      ↓
+Measure the distance
+      ↓
+Test one new connection
+      ↓
+See whether the route changes
+      ↓
+Then learn the graph theory behind it
 ```
 
-The new connection acts as a shortcut.
+## 🧮 Technical foundation
 
-### 4. Measures the effect
+### Shortest path
 
-The simulator calculates properties of the actual network:
+The network is represented using adjacency sets. Because the feeding graph is unweighted, **Breadth-First Search (BFS)** is used to find shortest directed paths.
 
-- Average shortest-path length
-- Clustering coefficient
-- Number of connected components
-- Average degree
+### Hypothetical connection
 
-### 5. Shows the network changing
+The simulator checks candidate interactions rather than blindly drawing a random edge. A candidate must:
 
-As long-range connections are introduced, the network can move through three broad structural states:
+- not already exist,
+- satisfy the simplified trophic-role rules used by the toy model,
+- connect nodes that are sufficiently separated in the existing topology, and
+- genuinely shorten the selected route.
 
-```text
-Ordered network
-      ↓
-A few long-range shortcuts
-      ↓
-Small-world region
-      ↓
-Increasingly random network
-```
+If no candidate satisfies these conditions, the interface reports that **no useful long-range connection exists**.
 
-The important observation is that **path length can decrease significantly while clustering remains relatively high**.
+## 🛠️ Tech Stack
 
-### 6. Runs the main experiment
-
-The simulator can sweep through different rewiring probabilities and plot:
-
-- `L(p) / L(0)` — normalized average path length
-- `C(p) / C(0)` — normalized clustering coefficient
-
-This allows the small-world region to be observed as an experimental result rather than simply stated as a conclusion.
-
----
-
-## Why This Matters
-
-Most Six Degrees projects stop at:
-
-> **"Find a short path between two people."**
-
-This project uses Six Degrees only as the **starting point**.
-
-The deeper question is:
-
-> **What makes a large network surprisingly well connected?**
-
-By allowing users to introduce a small number of long-range connections and observe how the network changes, the simulation makes the underlying mechanism visible.
-
-The project therefore combines:
-
-- Intuition
-- Experimentation
-- Graph theory
-- Network visualization
-
-rather than simply recreating the Six Degrees game.
-
----
-
-## Interactive Experience
-
-The simulation is designed to be understood visually before introducing the mathematics.
-
-The intended experience is:
-
-```text
-Explore the network
-        ↓
-Choose two nodes
-        ↓
-See their path
-        ↓
-Add a long-range connection
-        ↓
-Watch the distance change
-        ↓
-Repeat
-        ↓
-Observe the small-world effect
-        ↓
-Explore the mathematics
-```
-
-Technical concepts such as BFS, clustering coefficient, and rewiring probability are introduced after the visual experiment rather than overwhelming the user at the beginning.
-
----
-
-## Tech Stack
-
-| Layer | Technology |
+| Part | Technology |
 |---|---|
-| Frontend | HTML, CSS, JavaScript |
-| Visualization | Canvas / D3.js |
-| Graph representation | JavaScript adjacency sets |
-| Shortest paths | Breadth-First Search (BFS) |
-| Network metrics | Custom calculations |
-| Simulation | Watts–Strogatz-style rewiring |
+| Interface | HTML, CSS, JavaScript |
+| Visualization | HTML Canvas |
+| Graph | JavaScript adjacency sets |
+| Shortest path | Breadth-First Search (BFS) |
+| Deployment | GitHub Pages |
 | Version control | Git / GitHub |
 
-A Python/NetworkX backend may be added later if larger networks require heavier computation.
+## 🚧 Roadmap
 
----
+- [x] Interactive organism network
+- [x] Directed feeding relationships
+- [x] Shortest feeding-path exploration
+- [x] Hypothetical long-range interaction test
+- [x] Explicit no-valid-connection result
+- [x] Vintage field-guide interface
+- [ ] Network-wide small-world experiment
+- [ ] Measure average path length and clustering across many trials
+- [ ] Compare the ecological-looking model with the classic Watts–Strogatz network
+- [ ] Explore documented real biological interaction data as a future extension
 
-## Algorithm Notes
-
-### Shortest Path
-
-**Breadth-First Search (BFS)** is used to find the shortest path between nodes in the unweighted network.
-
-### Clustering Coefficient
-
-The clustering coefficient measures how strongly a node's neighbors are connected to one another.
-
-The overall clustering coefficient is calculated from the local clustering values of the nodes.
-
-### Rewiring
-
-The simulation starts with an ordered network.
-
-Edges are progressively rewired with probability `p` to introduce long-range connections while avoiding self-loops and duplicate edges.
-
----
-
-## Roadmap
-
-- [ ] **v1** — Simple interactive network and path exploration
-- [ ] **v1.1** — Long-range connection interaction
-- [ ] **v1.2** — Live path-length and clustering measurements
-- [ ] **v1.3** — Main Watts–Strogatz experiment and graph
-- [ ] **v2** — Introduce real documented biological interaction data
-- [ ] **v3** — Compare different network types using the same measurements
-
-A possible future data source is **Global Biotic Interactions (GloBI)**, which provides documented biological interactions.
-
----
-
-## Running Locally
-
-```bash
-git clone https://github.com/Advaitha07/SmallWorlds.git
-cd SmallWorlds
-```
-
-For a simple HTML/CSS/JavaScript implementation, the project can be opened directly in a browser.
-
-If a build system is introduced later:
-
-```bash
-npm install
-npm run dev
-```
-
----
-
-## What This Demonstrates
-
-- Graph representation
-- Breadth-First Search
-- Shortest-path analysis
-- Clustering coefficient calculation
-- Network simulation
-- Probability and random rewiring
-- Interactive data visualization
-- Experimental design
-- Translating an abstract mathematical concept into an intuitive visual experience
-
-Most importantly, the project demonstrates a simple phenomenon:
-
-> **A network does not need to become completely random to become surprisingly well connected.**
-
----
-
-## References
+## 📚 References
 
 - Watts, D. J., & Strogatz, S. H. (1998). *Collective dynamics of 'small-world' networks*. **Nature, 393**, 440–442.
 - Milgram, S. (1967). *The Small World Problem*. **Psychology Today, 2**, 60–67.
-- Global Biotic Interactions (GloBI).
 
----
+## 💡 The bigger idea
+
+The project begins with organisms because people understand relationships between living things more easily than abstract nodes and edges.
+
+But the real subject is **network structure**:
+
+> **How can a system that is mostly locally connected become surprisingly easy to navigate when only a few distant connections appear?**
+
+That is the question Small Worlds is built to explore.
 
 ## License
 
